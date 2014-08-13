@@ -1,0 +1,6 @@
+base: cloudius/osv-base
+cmdline: /nutcracker
+build: make
+files:
+    /nutcracker: nutcracker
+    /conf/nutcracker.yml: nutcracker.yml

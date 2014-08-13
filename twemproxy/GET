@@ -1,0 +1,31 @@
+#!/bin/sh
+
+rm -f master.zip
+rm -rf twemproxy-master
+wget https://github.com/twitter/twemproxy/archive/master.zip
+unzip master.zip
+cd twemproxy-master
+
+# add -fPIC and -pie
+tar --directory=contrib -xzf contrib/yaml-0.1.4.tar.gz
+rm contrib/yaml-0.1.4.tar.gz
+sed -i 's/EXTRA_DIST/#EXTRA_DIST/' contrib/Makefile.am
+sed -i 's/AM_CPPFLAGS =/AM_CPPFLAGS = -fPIC/' contrib/yaml-0.1.4/src/Makefile.am
+
+sed -i 's/AM_CFLAGS =/AM_CFLAGS = -pie -fPIC/' src/Makefile.am
+for dir in event hashkit proto; do
+    sed -i 's/AM_CFLAGS =/AM_CFLAGS = -fPIC/' src/$dir/Makefile.am
+done
+
+cat ../strndup.c >> src/nc_string.h
+sed -i 's/)strndup/)_nc_strndup/' src/nc_string.h
+
+autoreconf -fvi
+./configure --enable-debug=log
+make
+
+cp src/nutcracker ..
+cd ..
+
+rm master.zip
+rm -r twemproxy-master
