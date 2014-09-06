@@ -1,0 +1,27 @@
+Support for building Node.js in OSV
+
+For example, to build Node 0.10.31:
+
+./GET 0.10.31
+make NODE_VERSION=0.10.31
+
+
+An example Capstanfile:
+
+---
+base: cloudius/osv-base
+
+cmdline: /tools/libnode.so /express/examples/hello-world
+
+files:
+  /tools/libnode.so: libnode.so
+---
+
+- assuming you've put express in ROOTFS/express
+
+Then do:
+
+capstan build
+capstan run -f 3000:3000
+
+And visit localhost:3000 in a browser.

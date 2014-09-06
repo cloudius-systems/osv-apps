@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+cd "$(dirname "$0")"
+
+if test $# -ne 1
+then
+  echo "usage: $0 <node-version>" 1>&2
+  exit 1
+fi
+
+wget "https://github.com/joyent/node/archive/v${1}.tar.gz" -O - | tar zxf -
+
+./patch "$1"
