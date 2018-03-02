@@ -1,0 +1,122 @@
+diff -rupN lua-5.2.3/Makefile lua/Makefile
+--- lua-5.2.3/Makefile	2013-11-10 01:49:35.000000000 +0100
++++ lua/Makefile	2015-04-10 16:48:31.616517287 +0200
+@@ -36,7 +36,7 @@ RM= rm -f
+ # == END OF USER SETTINGS -- NO NEED TO CHANGE ANYTHING BELOW THIS LINE =======
+ 
+ # Convenience platforms targets.
+-PLATS= aix ansi bsd freebsd generic linux macosx mingw posix solaris
++PLATS= aix ansi bsd freebsd generic linux macosx mingw posix solaris osv
+ 
+ # What to install.
+ TO_BIN= lua luac
+diff -rupN lua-5.2.3/osv_add___longjmp_chk.patch lua/osv_add___longjmp_chk.patch
+--- lua-5.2.3/osv_add___longjmp_chk.patch	1970-01-01 01:00:00.000000000 +0100
++++ lua/osv_add___longjmp_chk.patch	2015-04-10 16:48:31.623183955 +0200
+@@ -0,0 +1,18 @@
++diff --git a/libc/arch/x64/setjmp/longjmp.s b/libc/arch/x64/setjmp/longjmp.s
++index e175a4b..feae506 100644
++--- a/libc/arch/x64/setjmp/longjmp.s
+++++ b/libc/arch/x64/setjmp/longjmp.s
++@@ -1,10 +1,13 @@
++ /* Copyright 2011-2012 Nicholas J. Kain, licensed under standard MIT license */
++ .global _longjmp
++ .global longjmp
+++.global __longjmp_chk
++ .type _longjmp,@function
++ .type longjmp,@function
+++.type __longjmp_chk,@function
++ _longjmp:
++ longjmp:
+++__longjmp_chk:
++ 	mov %rsi,%rax           /* val will be longjmp return */
++ 	test %rax,%rax
++ 	jnz 1f
+diff -rupN lua-5.2.3/README.osv lua/README.osv
+--- lua-5.2.3/README.osv	1970-01-01 01:00:00.000000000 +0100
++++ lua/README.osv	2015-04-10 16:48:31.616517287 +0200
+@@ -0,0 +1,41 @@
++
++What is this?
++~~~~~~~~~~~~~
++
++A port of lua to OSv.
++
++1. What is OSv?
++http://osv.io
++
++2. What is Lua?
++http://www.lua.org
++
++Usage
++~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++Running lua in OSv:
++
++$ capstan build gby/osv-lua
++$ capstan run gby/osv-lua
++
++FAQ
++~~~~
++
++1. What's gby/empty?
++
++gby/empty is the result of typing "make image=empty" in OSv source directory.
++
++2. Why is it needed? can't I use cloudius/osv-base as base?
++
++I never got lua it to work with cloudius/osv-base v9.0, so I made my own base image.
++
++One reason is the included OSv patch in the file osv_add___longjmp_chk.patch which you'll 
++need if you happen to building with FORTIFY_SOURCE set, specifically in case you are using 
++Ubuntu 14.04 LTS which sets it by default, as I am.
++
++In addition, I suspect cloudius/osv-base v9.0 may be broken regardless as I couldn't get even 
++a simple hello.so to run in it.
++
++gby.
++
++
+diff -rupN lua-5.2.3/src/luaconf.h lua/src/luaconf.h
+--- lua-5.2.3/src/luaconf.h	2013-04-12 20:48:47.000000000 +0200
++++ lua/src/luaconf.h	2015-04-10 16:48:31.636517288 +0200
+@@ -49,6 +49,16 @@
+ #define LUA_USE_LONGLONG	/* assume support for long long */
+ #endif
+ 
++#if defined(LUA_USE_OSV)
++#define LUA_USE_MKSTEMP
++#define LUA_USE_POPEN
++#define LUA_USE_GMTIME_R
++#define LUA_USE_STRTODHEX       /* assume 'strtod' handles hex formats */
++#define LUA_USE_AFORMAT         /* assume 'printf' handles 'aA' specifiers */
++#define LUA_USE_LONGLONG        /* assume support for long long */
++#endif
++
++
+ #if defined(LUA_USE_MACOSX)
+ #define LUA_USE_POSIX
+ #define LUA_USE_DLOPEN		/* does not need -ldl */
+diff -rupN lua-5.2.3/src/Makefile lua/src/Makefile
+--- lua-5.2.3/src/Makefile	2013-11-11 12:45:49.000000000 +0100
++++ lua/src/Makefile	2015-04-10 16:48:31.623183955 +0200
+@@ -26,7 +26,7 @@ MYOBJS=
+ 
+ # == END OF USER SETTINGS -- NO NEED TO CHANGE ANYTHING BELOW THIS LINE =======
+ 
+-PLATS= aix ansi bsd freebsd generic linux macosx mingw posix solaris
++PLATS= aix ansi bsd freebsd generic linux macosx mingw posix solaris osv
+ 
+ LUA_A=	liblua.a
+ CORE_O=	lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
+@@ -102,6 +102,10 @@ freebsd:
+ 
+ generic: $(ALL)
+ 
++osv:
++	$(MAKE) LUA_T=lua.so SYSLDFLAGS=-shared SYSCFLAGS="-fPIC -DLUA_USE_OSV" lua.so 
++	$(MAKE) LUA_T=luac.so SYSLDFLAGS=-shared SYSCFLAGS="-fPIC -DLUA_USE_OSV" luac.so
++
+ linux:
+ 	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_LINUX" SYSLIBS="-Wl,-E -ldl -lreadline"
+ 

@@ -1,0 +1,18 @@
+# Copyright (C) 2015 parasitid <parasitid@yahoo.fr>
+#
+# Derived from Gilad Ben-Yossef <gilad@benyossef.com>
+# see https://github.com/gby/lua
+#
+# Derived from Capstanfile example Copyright (C) 2014 Cloudius Systems, Ltd.
+#
+# This work is open source software, licensed under the terms of the
+# BSD license as described in the LICENSE file in the top-level directory.
+
+base: cloudius/osv-base
+
+cmdline: liblua.so
+
+build: make module
+
+files:
+  liblua.so: liblua.so

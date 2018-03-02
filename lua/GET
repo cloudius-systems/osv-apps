@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
+cd "$(dirname "$0")"
+
+VERSION=${LUA_VERSION:-5.2.3}
+
+wget "http://www.lua.org/ftp/lua-${VERSION}.tar.gz" -O - | tar zxvf -
+
+pushd ./lua-${VERSION}
+patch -p1 < ../"$VERSION".patch
+popd
