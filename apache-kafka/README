@@ -2,3 +2,7 @@ Apache Kafka OSv
 ================
 
 Apache Kafka: A high-throughput distributed messaging system. See more at http://kafka.apache.org/.
+
+Curent version of this module is Kafka 2.12-2.1.1, which is based on Scala 2.12 and needs Java 8 at minimum.
+
+Notice that in order for Kafka to work you also need to run Zookeeper and configure its IP and port in Kafka's config file (assets/config/server.properties). If you are willing to run a local OSv instance of Zookeeper, keep in mind to run it in network bridge mode.

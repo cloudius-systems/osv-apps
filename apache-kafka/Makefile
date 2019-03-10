@@ -1,5 +1,5 @@
-SCALA:=2.10
-VERSION:=0.8.2.1
+SCALA:=2.12
+VERSION:=2.1.1
 NAME:=kafka
 DIR:=kafka_$(SCALA)-$(VERSION)
 TARBALL:=$(DIR).tgz
