@@ -20,7 +20,7 @@ For example, this is a reasonable invocation of OSv with memcached:
 
 	make image=memached
 	sudo scripts/run.py -m6G -c1 -nv -e \
-	     "memcached.so -u root -t1 -m5000"
+	     "memcached -u root -t1 -m5000"
 
 Note how we created a VM with 1 vCPU ("-c1"), so we passed "-t1" to
 memcached to have it use one thread; Our VM has 6 GB of memory, so we
