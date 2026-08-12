@@ -46,3 +46,5 @@ echo "
 /usr/data/**: ${ROOTDIR}/usr/data/**
 /usr/bin/mysqld: ${BUILDDIR}/sql/mysqld
 " > usr.manifest
+
+find $ROOTDIR -name '*.a' -exec rm '{}' +
